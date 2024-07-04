@@ -51,6 +51,14 @@ theme.taglist_squares_sel = theme_assets.taglist_squares_sel(
 theme.taglist_squares_unsel = theme_assets.taglist_squares_unsel(
     taglist_square_size, theme.fg_normal
 )
+-- taglist customisation
+theme.taglist_fg_focus    = "#d12f63"
+theme.taglist_bg_focus    = "#000000"
+theme.taglist_fg_occupied = "#e9de18"
+theme.taglist_fg_urgent   = "#ED7572"
+theme.taglist_fg_empty    = "#828282"
+theme.taglist_spacing     = 1
+theme.taglist_font        = "Cyberpunk"
 
 -- Variables set for theming notifications:
 -- notification_font
@@ -119,10 +127,9 @@ theme.layout_cornersw = themes_path.."default/layouts/cornersww.png"
 theme.layout_cornerse = themes_path.."default/layouts/cornersew.png"
 
 -- Generate Awesome icon:
--- theme.awesome_icon = theme_assets.awesome_icon(
---     theme.menu_height, theme.bg_focus, theme.fg_focus
--- )
-theme.awesome_icon = "~/.config/awesome/assets/icons/fragile.png"
+theme.awesome_icon = theme_assets.awesome_icon(
+    theme.menu_height, theme.bg_focus, theme.fg_focus
+)
 
 -- Define the icon theme for application icons. If not set then the icons
 -- from /usr/share/icons and /usr/share/icons/hicolor will be used.
