@@ -24,10 +24,10 @@ theme.fg_focus      = "#ffffff"
 theme.fg_urgent     = "#ffffff"
 theme.fg_minimize   = "#ffffff"
 
-theme.useless_gap   = dpi(5)
-theme.border_width  = dpi(1)
+theme.useless_gap   = dpi(3)
+theme.border_width  = dpi(1.5)
 theme.border_normal = "#000000"
-theme.border_focus  = "#535d6c"
+theme.border_focus  = "#8e7ab5"
 theme.border_marked = "#91231c"
 
 -- There are other variable sets
@@ -56,9 +56,9 @@ theme.taglist_fg_focus    = "#d12f63"
 theme.taglist_bg_focus    = "#000000"
 theme.taglist_fg_occupied = "#e9de18"
 theme.taglist_fg_urgent   = "#ED7572"
-theme.taglist_fg_empty    = "#828282"
+theme.taglist_fg_empty    = "#919191"
 theme.taglist_spacing     = 1
-theme.taglist_font        = "Cyberpunk"
+theme.taglist_font        = "Cyberpunk 10" -- "<font name> <font size>"
 
 -- Variables set for theming notifications:
 -- notification_font
@@ -106,7 +106,7 @@ theme.titlebar_maximized_button_normal_active = themes_path.."default/titlebar/m
 theme.titlebar_maximized_button_focus_active  = themes_path.."default/titlebar/maximized_focus_active.png"
 
 -- theme.wallpaper = themes_path.."default/background.png"
-theme.wallpaper = "~/Wallpapers/cp1.jpg"
+theme.wallpaper = "~/Pictures/Wallpapers/cp1.jpg"
 
 -- You can use your own layout icons like this:
 theme.layout_fairh = themes_path.."default/layouts/fairhw.png"
