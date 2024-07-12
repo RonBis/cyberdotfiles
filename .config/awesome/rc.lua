@@ -219,8 +219,8 @@ awful.screen.connect_for_each_screen(function(s)
         screen          = s,
         filter          = awful.widget.tasklist.filter.currenttags,
         buttons         = tasklist_buttons,
-        layout          = tasklist_widget.layout,
-        style           = tasklist_widget.theme,
+        layout          = tasklist_widget.items.layout,
+        style           = tasklist_widget.items.theme,
         widget_template = tasklist_widget.widget_template,
     }
 
@@ -247,8 +247,13 @@ awful.screen.connect_for_each_screen(function(s)
                 s.mytaglist,
                 s.mypromptbox,
             },
-            s.mytasklist, -- Middle widget
-            {             -- Right widgets
+            { -- Middle widget
+                layout = wibox.container.background,
+                s.mytasklist,
+                bg = "#141414",
+                shape = gears.shape.rounded_bar
+            },
+            { -- Right widgets
                 layout = wibox.layout.fixed.horizontal,
                 mykeyboardlayout,
                 wibox.widget.systray(),

@@ -3,18 +3,15 @@ local tasklist           = {}
 local gears              = require("gears")
 local wibox              = require("wibox")
 
-tasklist.theme           = {
-    bg_normal = "#000000",
-    -- fg_normal = "##909090",
-    bg_focus  = "#700d0d",
-    -- fg_focus  = "#ffffff",
-    shape     = gears.shape.rounded_bar,
-    tasklist_shape_border_width = 2,
-}
-
-tasklist.layout          = {
-    spacing = 7,
-    layout  = wibox.layout.flex.horizontal
+tasklist.items           = {
+    theme  = {
+        bg_normal          = "#00000000",
+        bg_focus           = "#00000000",
+    },
+    layout = {
+        spacing = 25,
+        layout  = wibox.layout.flex.horizontal
+    }
 }
 
 tasklist.widget_template = {
