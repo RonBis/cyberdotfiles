@@ -1,6 +1,13 @@
 -- If LuaRocks is installed, make sure that packages installed through it are
 -- found (e.g. lgi). If LuaRocks is not installed, do nothing.
 pcall(require, "luarocks.loader")
+local glowtext = require("themes.cyberpunk.components.glowtext")
+
+package.path = package.path
+    .. ";/home/roni/.luarocks/share/lua/5.3/?.lua"
+
+package.cpath = package.cpath
+    .. ";/home/roni/.luarocks/lib/lua/5.3/?.so"
 
 -- Standard awesome library
 local gears = require("gears")
@@ -21,7 +28,9 @@ local hotkeys_popup = require("awful.hotkeys_popup")
 require("awful.hotkeys_popup.keys")
 
 -- Custom Imports
+local theme = require("theme")
 local tasklist_widget = require("themes.cyberpunk.widgets.tasklist")
+local wallpaper_switcher = require("themes.cyberpunk.widgets.wallpaper_switcher")
 
 -- {{{ Error handling
 -- Check if awesome encountered an error during startup and fell back to
@@ -229,29 +238,33 @@ awful.screen.connect_for_each_screen(function(s)
         position = "top",
         screen   = s,
         bg       = gears.color.transparent,
-        height   = 36,
+        height   = theme.wibar_height,
     })
 
     -- Add widgets to the wibox
     s.mywibox:setup {
         layout = wibox.container.margin,
-        top = 7,
-        left = 7,
-        right = 7,
+        top = theme.wibar_margin,
+        left = theme.wibar_margin,
+        right = theme.wibar_margin,
         {
             layout = wibox.layout.align.horizontal,
             expand = "none", -- lifesaver: prevent tasklists from taking up full space
             {                -- Left widgets
                 layout = wibox.layout.fixed.horizontal,
                 mylauncher,
+                { -- for spacing
+                    layout = wibox.container.margin,
+                    left = 7,
+                },
                 s.mytaglist,
                 s.mypromptbox,
             },
             { -- Middle widget
                 layout = wibox.container.background,
                 s.mytasklist,
-                bg = "#141414",
-                shape = gears.shape.rounded_bar
+                bg = tasklist_widget.theme.bg,
+                shape = tasklist_widget.theme.shape,
             },
             { -- Right widgets
                 layout = wibox.layout.fixed.horizontal,
@@ -371,7 +384,44 @@ globalkeys = gears.table.join(
         { description = "lua execute prompt", group = "awesome" }),
     -- Menubar
     awful.key({ modkey }, "p", function() menubar.show() end,
-        { description = "show the menubar", group = "launcher" })
+        { description = "show the menubar", group = "launcher" }),
+
+    -- Multimedia key control
+    awful.key(
+        {}, "XF86AudioRaiseVolume",
+        function()
+            awful.spawn("wpctl set-volume @DEFAULT_AUDIO_SINK@ 0.02+")
+            -- naughty.notify({ text = "Volume Up" })
+        end,
+        { description = "increase volume", group = "multimedia controls" }
+    ),
+
+    awful.key(
+        {}, "XF86AudioLowerVolume",
+        function()
+            awful.spawn("wpctl set-volume @DEFAULT_AUDIO_SINK@ 0.02-")
+            -- naughty.notify({ text = "Volume Down" })
+        end,
+        { description = "decrease volume", group = "multimedia controls" }
+    ),
+
+    awful.key(
+        {}, "XF86AudioMute",
+        function()
+            awful.spawn("wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle")
+            -- naughty.notify({ text = "Mute/Unmute" })
+        end,
+        { description = "toggle mute", group = "multimedia controls" }
+    ),
+
+    -- Custom popup keys
+    awful.key(
+        { modkey }, "c",
+        function()
+            wallpaper_switcher.visible = not wallpaper_switcher.visible
+        end,
+        { description = "switch wallpaper", group = "misc" }
+    )
 )
 
 clientkeys = gears.table.join(
@@ -397,7 +447,7 @@ clientkeys = gears.table.join(
             -- minimized, since minimized clients can't have the focus.
             c.minimized = true
         end,
-        { description = "minimize", group = "client" }),
+        { description = "minimize", group = "wpctl set-sink-mute @DEFAULT_AUDIO_SINK@ toggleclient" }),
     awful.key({ modkey, }, "m",
         function(c)
             c.maximized = not c.maximized

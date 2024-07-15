@@ -1,0 +1,9 @@
+[window]
+dynamic_padding = true
+opacity = 0.8
+
+[font]
+normal = { family = "CodeNewRomanNerdFont" }
+bold = { family = "CodeNewRomanNerdFont" }
+size = 7
+
