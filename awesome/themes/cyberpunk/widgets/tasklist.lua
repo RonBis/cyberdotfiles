@@ -1,5 +1,6 @@
 local wibox              = require("wibox")
 local gears              = require("gears")
+local cairo              = require("lgi").cairo
 
 local tasklist           = {}
 
@@ -20,6 +21,8 @@ tasklist.items           = {
     }
 }
 
+fallback_tasklist_icon   = "/usr/share/icons/Adwaita/scalable/mimetypes/application-x-executable.svg"
+
 tasklist.widget_template = {
     widget = wibox.container.margin,
     margins = 1.5,
@@ -35,6 +38,16 @@ tasklist.widget_template = {
             },
         },
     },
+    create_callback = function(self, c, index, objects) --luacheck: no unused args
+        if c and c.valid and not c.icon then
+            local s = gears.surface(fallback_tasklist_icon)
+            local img = cairo.ImageSurface.create(cairo.Format.ARGB32, s:get_width(), s:get_height())
+            local cr = cairo.Context(img)
+            cr:set_source_surface(s, 0, 0)
+            cr:paint()
+            c.icon = img._native
+        end
+    end
 }
 
 return tasklist

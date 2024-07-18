@@ -1,7 +1,6 @@
 -- If LuaRocks is installed, make sure that packages installed through it are
 -- found (e.g. lgi). If LuaRocks is not installed, do nothing.
 pcall(require, "luarocks.loader")
-local glowtext = require("themes.cyberpunk.components.glowtext")
 
 package.path = package.path
     .. ";/home/roni/.luarocks/share/lua/5.3/?.lua"
@@ -31,6 +30,8 @@ require("awful.hotkeys_popup.keys")
 local theme = require("theme")
 local tasklist_widget = require("themes.cyberpunk.widgets.tasklist")
 local wallpaper_switcher = require("themes.cyberpunk.widgets.wallpaper_switcher")
+local centered_prompt = require("themes.cyberpunk.widgets.promptbox")
+local logger = require("util.logger")
 
 -- {{{ Error handling
 -- Check if awesome encountered an error during startup and fell back to
@@ -233,7 +234,7 @@ awful.screen.connect_for_each_screen(function(s)
         widget_template = tasklist_widget.widget_template,
     }
 
-    -- Create the wibox (TODO: customise)
+    -- Create the wibox
     s.mywibox = awful.wibar({
         position = "top",
         screen   = s,
@@ -247,6 +248,7 @@ awful.screen.connect_for_each_screen(function(s)
         top = theme.wibar_margin,
         left = theme.wibar_margin,
         right = theme.wibar_margin,
+        bottom = theme.wibar_margin,
         {
             layout = wibox.layout.align.horizontal,
             expand = "none", -- lifesaver: prevent tasklists from taking up full space
@@ -369,7 +371,9 @@ globalkeys = gears.table.join(
         { description = "restore minimized", group = "client" }),
 
     -- Prompt
-    awful.key({ modkey }, "r", function() awful.screen.focused().mypromptbox:run() end,
+    -- awful.key({ modkey }, "r", function() awful.screen.focused().mypromptbox:run() end,
+    --     { description = "run prompt", group = "launcher" }),
+    awful.key({ modkey }, "r", function() centered_prompt() end,
         { description = "run prompt", group = "launcher" }),
 
     awful.key({ modkey }, "x",
@@ -447,7 +451,7 @@ clientkeys = gears.table.join(
             -- minimized, since minimized clients can't have the focus.
             c.minimized = true
         end,
-        { description = "minimize", group = "wpctl set-sink-mute @DEFAULT_AUDIO_SINK@ toggleclient" }),
+        { description = "minimize", group = "client" }),
     awful.key({ modkey, }, "m",
         function(c)
             c.maximized = not c.maximized
@@ -550,6 +554,7 @@ awful.rules.rules = {
             keys = clientkeys,
             buttons = clientbuttons,
             screen = awful.screen.preferred,
+            shape = theme.client_shape,
             placement = awful.placement.no_overlap + awful.placement.no_offscreen
         }
     },
@@ -598,6 +603,12 @@ awful.rules.rules = {
     -- Set Firefox to always map on the tag named "2" on screen 1.
     -- { rule = { class = "Firefox" },
     --   properties = { screen = 1, tag = "2" } },
+
+    -- Custom rules
+    {
+        rule = { name = "awesome_wallpaper_switcher" },
+        properties = { placement = awful.placement.centered }
+    },
 }
 -- }}}
 
@@ -607,12 +618,20 @@ client.connect_signal("manage", function(c)
     -- Set the windows at the slave,
     -- i.e. put it at the end of others instead of setting it master.
     -- if not awesome.startup then awful.client.setslave(c) end
-    c.shape = gears.shape.rounded_rect
+
+    -- Add a border radius to client
+    -- c.shape = gears.shape.rounded_rect
 
     if awesome.startup
-        and not c.size_hints.user_position
-        and not c.size_hints.program_position then
+    and not c.size_hints.user_position
+    and not c.size_hints.program_position then
         -- Prevent clients from being unreachable after screen count changes.
+        awful.placement.no_offscreen(c)
+    end
+    
+    -- Center dialogs over parent
+    if c.transient_for then
+        awful.placement.centered(c, { parent = c.transient_for })
         awful.placement.no_offscreen(c)
     end
 end)
@@ -664,4 +683,14 @@ end)
 
 client.connect_signal("focus", function(c) c.border_color = beautiful.border_focus end)
 client.connect_signal("unfocus", function(c) c.border_color = beautiful.border_normal end)
+
+-- Remove cutouts when entering fullscreen
+client.connect_signal("property::fullscreen", function (c)
+    if c.fullscreen then
+        c.shape = gears.shape.rectangle
+    else
+        c.shape = theme.client_shape() -- parens are important here
+    end
+end)
+
 -- }}}

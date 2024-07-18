@@ -26,10 +26,10 @@ theme.fg_focus                                  = "#ffffff"
 theme.fg_urgent                                 = "#ffffff"
 theme.fg_minimize                               = "#ffffff"
 
-theme.useless_gap                               = dpi(1.5)
-theme.border_width                              = dpi(1)
-theme.border_normal                             = "#000000"
-theme.border_focus                              = "#8e7ab5"
+theme.useless_gap                               = dpi(3)
+theme.border_width                              = dpi(1.5)
+theme.border_normal                             = "#2e2c2c" -- Average wallpaper color
+theme.border_focus                              = "#a0a0a0"
 theme.border_marked                             = "#91231c"
 
 -- There are other variable sets
@@ -130,8 +130,22 @@ theme.layout_cornersw                           = themes_path .. "default/layout
 theme.layout_cornerse                           = themes_path .. "default/layouts/cornersew.png"
 
 -- custom styles
-theme.wibar_margin                              = 4
+theme.wibar_margin                              = 3
 theme.wibar_height                              = 34
+
+theme.client_cutout                             = 10
+theme.client_shape                              = function()
+    local x = theme.client_cutout
+    return function(cr, w, h)
+        cr:move_to(0, x)
+        cr:line_to(x, 0)
+        cr:line_to(w, 0)
+        cr:line_to(w, h - x)
+        cr:line_to(w - x, h)
+        cr:line_to(0, h)
+        cr:close_path()
+    end
+end
 
 -- Generate Awesome icon:
 theme.awesome_icon                              = theme_assets.awesome_icon(
