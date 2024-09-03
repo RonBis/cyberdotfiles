@@ -4,6 +4,13 @@ case $- in
     *) return;;
 esac
 
+if [[ ( -z $QUIET ) || ( $QUIET == 0 ) ]]; then
+  echo "
+  █░█░█ ▄▀█ █▄▀ █▀▀   ▀█▀ █░█ █▀▀   █▀▀   █░█ █▀█   █▀ ▄▀█ █▀▄▀█ █░█ █▀█ ▄▀█ █
+  ▀▄▀▄▀ █▀█ █░█ ██▄   ░█░ █▀█ ██▄   █▀░   █▄█ █▀▀   ▄█ █▀█ █░▀░█ █▄█ █▀▄ █▀█ █
+  "
+fi
+
 # Path to your oh-my-bash installation.
 export OSH='/home/roni/.oh-my-bash'
 
@@ -138,9 +145,4 @@ function mktouch() {
   mkdir -p -- "$(dirname -- "$1")" && touch -- "$1"
 }
 
-echo "
-  █░█░█ ▄▀█ █▄▀ █▀▀   ▀█▀ █░█ █▀▀   █▀▀   █░█ █▀█   █▀ ▄▀█ █▀▄▀█ █░█ █▀█ ▄▀█ █
-  ▀▄▀▄▀ █▀█ █░█ ██▄   ░█░ █▀█ ██▄   █▀░   █▄█ █▀▀   ▄█ █▀█ █░▀░█ █▄█ █▀▄ █▀█ █
-"
-
-export PATH=$PATH:/home/roni/.spicetify
+export MANPAGER='nvim +Man!'

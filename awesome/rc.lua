@@ -1,10 +1,10 @@
 -- If LuaRocks is installed, make sure that packages installed through it are
 -- found (e.g. lgi). If LuaRocks is not installed, do nothing.
 pcall(require, "luarocks.loader")
-local glowtext = require("themes.cyberpunk.components.glowtext")
 
 package.path = package.path
     .. ";/home/roni/.luarocks/share/lua/5.3/?.lua"
+    .. ";/home/roni/.luarocks/share/lua/5.3/?/init.lua"
 
 package.cpath = package.cpath
     .. ";/home/roni/.luarocks/lib/lua/5.3/?.so"
@@ -30,7 +30,10 @@ require("awful.hotkeys_popup.keys")
 -- Custom Imports
 local theme = require("theme")
 local tasklist_widget = require("themes.cyberpunk.widgets.tasklist")
+local dynamic_bar = require("themes.cyberpunk.widgets.dynamic_bar.mod")
+local centered_prompt = require("themes.cyberpunk.widgets.promptbox")
 local wallpaper_switcher = require("themes.cyberpunk.widgets.wallpaper_switcher")
+local logger = require("util.logger")
 
 -- {{{ Error handling
 -- Check if awesome encountered an error during startup and fell back to
@@ -60,6 +63,11 @@ do
     end)
 end
 -- }}}
+
+--- {{{ Startup functions
+AudioState.sync(true)
+--- }}}
+
 
 -- {{{ Variable definitions
 -- Themes define colours, icons, font and wallpapers.
@@ -189,13 +197,13 @@ awful.screen.connect_for_each_screen(function(s)
     -- Wallpaper
     set_wallpaper(s)
 
-    local names = { "C", "Y", "B", "E", "R", "P", "U", "N", "K" }
+    local names = { "A", "R", "C", "H", "L", "I", "N", "U", "X" }
     local l = awful.layout.suit
     local layouts = {
         l.tile,
         l.tile.left,
         l.tile.right,
-        l.floating,
+        l.fair.horizontal,
         l.floating,
         l.floating,
         l.floating,
@@ -233,7 +241,7 @@ awful.screen.connect_for_each_screen(function(s)
         widget_template = tasklist_widget.widget_template,
     }
 
-    -- Create the wibox (TODO: customise)
+    -- Create the wibox
     s.mywibox = awful.wibar({
         position = "top",
         screen   = s,
@@ -241,10 +249,20 @@ awful.screen.connect_for_each_screen(function(s)
         height   = theme.wibar_height,
     })
 
+    -- custom
+    -- local dynamic_bar = wibox.widget {
+    --     id = "tasklist",
+    --     s.mytasklist,
+    --     layout = wibox.layout.stack
+    -- }
+
+    -- local volume_bar = dynamic_bar_widgets.volume_bar
+    --TODO
+
     -- Add widgets to the wibox
     s.mywibox:setup {
-        layout = wibox.container.margin,
-        top = theme.wibar_margin,
+        widget = wibox.container.margin,
+        top = theme.wibar_margin - 2,
         left = theme.wibar_margin,
         right = theme.wibar_margin,
         {
@@ -262,7 +280,7 @@ awful.screen.connect_for_each_screen(function(s)
             },
             { -- Middle widget
                 layout = wibox.container.background,
-                s.mytasklist,
+                dynamic_bar(s.mytasklist),
                 bg = tasklist_widget.theme.bg,
                 shape = tasklist_widget.theme.shape,
             },
@@ -369,7 +387,9 @@ globalkeys = gears.table.join(
         { description = "restore minimized", group = "client" }),
 
     -- Prompt
-    awful.key({ modkey }, "r", function() awful.screen.focused().mypromptbox:run() end,
+    -- awful.key({ modkey }, "r", function() awful.screen.focused().mypromptbox:run() end,
+    --     { description = "run prompt", group = "launcher" }),
+    awful.key({ modkey }, "r", function() centered_prompt() end,
         { description = "run prompt", group = "launcher" }),
 
     awful.key({ modkey }, "x",
@@ -388,30 +408,44 @@ globalkeys = gears.table.join(
 
     -- Multimedia key control
     awful.key(
-        {}, "XF86AudioRaiseVolume",
-        function()
-            awful.spawn("wpctl set-volume @DEFAULT_AUDIO_SINK@ 0.02+")
-            -- naughty.notify({ text = "Volume Up" })
-        end,
-        { description = "increase volume", group = "multimedia controls" }
-    ),
-
-    awful.key(
         {}, "XF86AudioLowerVolume",
         function()
-            awful.spawn("wpctl set-volume @DEFAULT_AUDIO_SINK@ 0.02-")
-            -- naughty.notify({ text = "Volume Down" })
+            awesome.emit_signal("volume::decrease")
         end,
         { description = "decrease volume", group = "multimedia controls" }
     ),
 
     awful.key(
+        {}, "XF86AudioRaiseVolume",
+        function()
+            awesome.emit_signal("volume::increase")
+        end,
+        { description = "increase volume", group = "multimedia controls" }
+    ),
+
+    awful.key(
         {}, "XF86AudioMute",
         function()
-            awful.spawn("wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle")
-            -- naughty.notify({ text = "Mute/Unmute" })
+            awesome.emit_signal("volume::togglemute")
         end,
         { description = "toggle mute", group = "multimedia controls" }
+    ),
+
+    -- Brigntness control
+    awful.key(
+        {}, "XF86MonBrightnessDown",
+        function()
+            awesome.emit_signal("brightness::decrease")
+        end,
+        { description = "decrease brightness", group = "brightness controls" }
+    ),
+
+    awful.key(
+        {}, "XF86MonBrightnessUp",
+        function()
+            awesome.emit_signal("brightness::increase")
+        end,
+        { description = "increase brightness", group = "brightness controls" }
     ),
 
     -- Custom popup keys
@@ -447,7 +481,7 @@ clientkeys = gears.table.join(
             -- minimized, since minimized clients can't have the focus.
             c.minimized = true
         end,
-        { description = "minimize", group = "wpctl set-sink-mute @DEFAULT_AUDIO_SINK@ toggleclient" }),
+        { description = "minimize", group = "client" }),
     awful.key({ modkey, }, "m",
         function(c)
             c.maximized = not c.maximized
@@ -550,6 +584,7 @@ awful.rules.rules = {
             keys = clientkeys,
             buttons = clientbuttons,
             screen = awful.screen.preferred,
+            shape = theme.client_shape,
             placement = awful.placement.no_overlap + awful.placement.no_offscreen
         }
     },
@@ -598,6 +633,12 @@ awful.rules.rules = {
     -- Set Firefox to always map on the tag named "2" on screen 1.
     -- { rule = { class = "Firefox" },
     --   properties = { screen = 1, tag = "2" } },
+
+    -- Custom rules
+    {
+        rule = { name = "awesome_wallpaper_switcher" },
+        properties = { placement = awful.placement.centered }
+    },
 }
 -- }}}
 
@@ -607,12 +648,20 @@ client.connect_signal("manage", function(c)
     -- Set the windows at the slave,
     -- i.e. put it at the end of others instead of setting it master.
     -- if not awesome.startup then awful.client.setslave(c) end
-    c.shape = gears.shape.rounded_rect
+
+    -- Add a border radius to client
+    -- c.shape = gears.shape.rounded_rect
 
     if awesome.startup
         and not c.size_hints.user_position
         and not c.size_hints.program_position then
         -- Prevent clients from being unreachable after screen count changes.
+        awful.placement.no_offscreen(c)
+    end
+
+    -- Center dialogs over parent
+    if c.transient_for then
+        awful.placement.centered(c, { parent = c.transient_for })
         awful.placement.no_offscreen(c)
     end
 end)
@@ -664,4 +713,14 @@ end)
 
 client.connect_signal("focus", function(c) c.border_color = beautiful.border_focus end)
 client.connect_signal("unfocus", function(c) c.border_color = beautiful.border_normal end)
+
+-- Remove cutouts when entering fullscreen
+client.connect_signal("property::fullscreen", function(c)
+    if c.fullscreen then
+        c.shape = gears.shape.rectangle
+    else
+        c.shape = theme.client_shape() -- parens are important here
+    end
+end)
+
 -- }}}

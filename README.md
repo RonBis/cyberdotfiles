@@ -26,6 +26,12 @@
 - Added a bash greeting
 - Added wallpaper switcher (half-finished), access with Mod+c
 
+### Day 6
+- Install __anydesk__ (`yay -S anydesk-bin`)<br>
+    Add "type=x11" to /etc/pam.d/system-login:<br>
+    `session optional pam_systemd.so type=x11`<br>
+    (In case connecting from other device shows *display server not supported*)
+
 todo
 ----
 - Complete working on wallpaper switcher
