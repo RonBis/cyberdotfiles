@@ -16,7 +16,7 @@ local function glowtext(text, font, normal_color, glow_color)
         shape = gears.shape.rectangle,
     }
 
-    function glowing_text.draw(self, context, cr, width, height)
+    function glowing_text:draw(context, cr, width, height)
         -- Draw the glow
         cr:set_operator(cairo.Operator.OVER)
         cr:set_source(gears.color(glow_color))

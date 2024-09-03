@@ -4,6 +4,7 @@ pcall(require, "luarocks.loader")
 
 package.path = package.path
     .. ";/home/roni/.luarocks/share/lua/5.3/?.lua"
+    .. ";/home/roni/.luarocks/share/lua/5.3/?/init.lua"
 
 package.cpath = package.cpath
     .. ";/home/roni/.luarocks/lib/lua/5.3/?.so"
@@ -29,8 +30,9 @@ require("awful.hotkeys_popup.keys")
 -- Custom Imports
 local theme = require("theme")
 local tasklist_widget = require("themes.cyberpunk.widgets.tasklist")
-local wallpaper_switcher = require("themes.cyberpunk.widgets.wallpaper_switcher")
+local dynamic_bar = require("themes.cyberpunk.widgets.dynamic_bar.mod")
 local centered_prompt = require("themes.cyberpunk.widgets.promptbox")
+local wallpaper_switcher = require("themes.cyberpunk.widgets.wallpaper_switcher")
 local logger = require("util.logger")
 
 -- {{{ Error handling
@@ -61,6 +63,11 @@ do
     end)
 end
 -- }}}
+
+--- {{{ Startup functions
+AudioState.sync(true)
+--- }}}
+
 
 -- {{{ Variable definitions
 -- Themes define colours, icons, font and wallpapers.
@@ -190,13 +197,13 @@ awful.screen.connect_for_each_screen(function(s)
     -- Wallpaper
     set_wallpaper(s)
 
-    local names = { "C", "Y", "B", "E", "R", "P", "U", "N", "K" }
+    local names = { "A", "R", "C", "H", "L", "I", "N", "U", "X" }
     local l = awful.layout.suit
     local layouts = {
         l.tile,
         l.tile.left,
         l.tile.right,
-        l.floating,
+        l.fair.horizontal,
         l.floating,
         l.floating,
         l.floating,
@@ -242,13 +249,22 @@ awful.screen.connect_for_each_screen(function(s)
         height   = theme.wibar_height,
     })
 
+    -- custom
+    -- local dynamic_bar = wibox.widget {
+    --     id = "tasklist",
+    --     s.mytasklist,
+    --     layout = wibox.layout.stack
+    -- }
+
+    -- local volume_bar = dynamic_bar_widgets.volume_bar
+    --TODO
+
     -- Add widgets to the wibox
     s.mywibox:setup {
-        layout = wibox.container.margin,
-        top = theme.wibar_margin,
+        widget = wibox.container.margin,
+        top = theme.wibar_margin - 2,
         left = theme.wibar_margin,
         right = theme.wibar_margin,
-        bottom = theme.wibar_margin,
         {
             layout = wibox.layout.align.horizontal,
             expand = "none", -- lifesaver: prevent tasklists from taking up full space
@@ -264,7 +280,7 @@ awful.screen.connect_for_each_screen(function(s)
             },
             { -- Middle widget
                 layout = wibox.container.background,
-                s.mytasklist,
+                dynamic_bar(s.mytasklist),
                 bg = tasklist_widget.theme.bg,
                 shape = tasklist_widget.theme.shape,
             },
@@ -392,30 +408,44 @@ globalkeys = gears.table.join(
 
     -- Multimedia key control
     awful.key(
-        {}, "XF86AudioRaiseVolume",
-        function()
-            awful.spawn("wpctl set-volume @DEFAULT_AUDIO_SINK@ 0.02+")
-            -- naughty.notify({ text = "Volume Up" })
-        end,
-        { description = "increase volume", group = "multimedia controls" }
-    ),
-
-    awful.key(
         {}, "XF86AudioLowerVolume",
         function()
-            awful.spawn("wpctl set-volume @DEFAULT_AUDIO_SINK@ 0.02-")
-            -- naughty.notify({ text = "Volume Down" })
+            awesome.emit_signal("volume::decrease")
         end,
         { description = "decrease volume", group = "multimedia controls" }
     ),
 
     awful.key(
+        {}, "XF86AudioRaiseVolume",
+        function()
+            awesome.emit_signal("volume::increase")
+        end,
+        { description = "increase volume", group = "multimedia controls" }
+    ),
+
+    awful.key(
         {}, "XF86AudioMute",
         function()
-            awful.spawn("wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle")
-            -- naughty.notify({ text = "Mute/Unmute" })
+            awesome.emit_signal("volume::togglemute")
         end,
         { description = "toggle mute", group = "multimedia controls" }
+    ),
+
+    -- Brigntness control
+    awful.key(
+        {}, "XF86MonBrightnessDown",
+        function()
+            awesome.emit_signal("brightness::decrease")
+        end,
+        { description = "decrease brightness", group = "brightness controls" }
+    ),
+
+    awful.key(
+        {}, "XF86MonBrightnessUp",
+        function()
+            awesome.emit_signal("brightness::increase")
+        end,
+        { description = "increase brightness", group = "brightness controls" }
     ),
 
     -- Custom popup keys
@@ -623,12 +653,12 @@ client.connect_signal("manage", function(c)
     -- c.shape = gears.shape.rounded_rect
 
     if awesome.startup
-    and not c.size_hints.user_position
-    and not c.size_hints.program_position then
+        and not c.size_hints.user_position
+        and not c.size_hints.program_position then
         -- Prevent clients from being unreachable after screen count changes.
         awful.placement.no_offscreen(c)
     end
-    
+
     -- Center dialogs over parent
     if c.transient_for then
         awful.placement.centered(c, { parent = c.transient_for })
@@ -685,7 +715,7 @@ client.connect_signal("focus", function(c) c.border_color = beautiful.border_foc
 client.connect_signal("unfocus", function(c) c.border_color = beautiful.border_normal end)
 
 -- Remove cutouts when entering fullscreen
-client.connect_signal("property::fullscreen", function (c)
+client.connect_signal("property::fullscreen", function(c)
     if c.fullscreen then
         c.shape = gears.shape.rectangle
     else

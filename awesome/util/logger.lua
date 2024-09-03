@@ -1,7 +1,14 @@
 local logger = {}
 
+local gfs = require("gears.filesystem")
+
+---@param s string | table
 function logger.write(s)
-    file = io.open("/home/roni/.config/awesome/awesome-debug.log", "a+")
+    local file = io.open(gfs.get_configuration_dir() .. "awesome-debug.log", "a+")
+    if file == nil then
+        return
+    end
+
     if (type(s) == "table") then
         file:write("-- " .. tostring(s) .. " --\n")
         for key, value in pairs(s) do
