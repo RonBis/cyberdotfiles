@@ -16,7 +16,10 @@ icons.sound = {
 
 -- brightness
 icons.brightness = {
-    --todo
+    low   = icon_dir .. "brightness/streamline:brightness-1-solid.svg",
+    mid   = icon_dir .. "brightness/streamline:brightness-2-solid.svg",
+    high  = icon_dir .. "brightness/streamline:brightness-3-solid.svg",
+    maxed = icon_dir .. "brightness/streamline:brightness-max.svg",
 }
 
 return icons

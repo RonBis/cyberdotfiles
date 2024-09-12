@@ -31,7 +31,7 @@ tasklist.widget_template = {
         id     = "background_role",
         {
             widget  = wibox.container.margin,
-            margins = 3,
+            margins = 4,
             {
                 widget = wibox.widget.imagebox,
                 id     = "icon_role",

@@ -3,7 +3,6 @@ local theme     = require("theme")
 local gears     = require("gears")
 local icons     = require("themes.cyberpunk.icons")
 local animation = require("themes.cyberpunk.animation")
-local logger    = require("util.logger")
 
 local function foreground_white(svg_path)
     return gears.color.recolor_image(svg_path, theme.fg_focus)
@@ -14,9 +13,10 @@ local forced_height = theme.wibar_height - 15.5
 local volume_bar = {}
 
 volume_bar.widget = wibox.widget {
+    _dynamic_bar_id = "dynamic_bar:volume_bar",
     widget = wibox.container.margin,
     left = 8,
-    right = 10,
+    right = 8,
     {
         widget = wibox.container.place,
         valign = "center",
@@ -57,26 +57,28 @@ local audio_icons = {
 }
 
 function volume_bar.widget:set_icon(volume, muted)
-    -- logger.write(tostring(volume).." "..tostring(muted))
     local icon = get_audiolevel_from_volume(volume, muted)
-    -- logger.write(icon)
     self:get_children_by_id("icon")[1].image = foreground_white(audio_icons[icon])
 end
 
 -- {{{ Animations
-volume_bar.anims = {
+volume_bar.anim = {
+    ---@param from number
+    ---@param to number
     volume_up = function(from, to)
         if to == nil then to = from + 2 end
-        local anim = animation.base(0, 0.007)
+        local anim = animation.base(nil, 0, 0.007)
         anim.pos = from
         anim:subscribe(function(pos)
             volume_bar.widget:get_children_by_id("progressbar")[1].forced_width = pos
         end)
         anim.target = to
     end,
+    ---@param from number
+    ---@param to number
     volume_down = function(from, to)
         if to == nil then to = from + 2 end
-        local anim = animation.base(0, 0.007)
+        local anim = animation.base(nil, 0, 0.007)
         anim.pos = from
         anim:subscribe(function(pos)
             volume_bar.widget:get_children_by_id("progressbar")[1].forced_width = pos

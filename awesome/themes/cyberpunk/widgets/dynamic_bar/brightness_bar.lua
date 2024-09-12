@@ -3,7 +3,6 @@ local theme     = require("theme")
 local gears     = require("gears")
 local icons     = require("themes.cyberpunk.icons")
 local animation = require("themes.cyberpunk.animation")
-local logger    = require("util.logger")
 
 local function foreground_white(svg_path)
     return gears.color.recolor_image(svg_path, theme.fg_focus)
@@ -27,7 +26,7 @@ brightness_bar.widget = wibox.widget {
             {
                 widget = wibox.widget.imagebox,
                 id = "icon",
-                image = foreground_white(icons.sound.low),
+                image = foreground_white(icons.brightness.low),
                 forced_width = forced_height,
                 forced_height = forced_height,
             },
@@ -49,33 +48,32 @@ brightness_bar.widget = wibox.widget {
     }
 }
 
-local audio_icons = {
-    icons.sound.mute,
-    icons.sound.low,
-    icons.sound.mid,
-    icons.sound.high,
-    icons.sound.maxed
+local brightness_icons = {
+    icons.brightness.low,
+    icons.brightness.mid,
+    icons.brightness.high,
+    icons.brightness.maxed
 }
 
 function brightness_bar.widget:set_icon(volume, muted)
     local icon = get_audiolevel_from_volume(volume, muted)
-    self:get_children_by_id("icon")[1].image = foreground_white(audio_icons[icon])
+    self:get_children_by_id("icon")[1].image = foreground_white(brightness_icons[icon])
 end
 
 -- {{{ Animations
 brightness_bar.anims = {
-    volume_up = function(from, to)
+    brightness_up = function(from, to)
         if to == nil then to = from + 2 end
-        local anim = animation.base(0, 0.007)
+        local anim = animation.base(nil, 0, 0.007)
         anim.pos = from
         anim:subscribe(function(pos)
             brightness_bar.widget:get_children_by_id("progressbar")[1].forced_width = pos
         end)
         anim.target = to
     end,
-    volume_down = function(from, to)
+    brightness_down = function(from, to)
         if to == nil then to = from + 2 end
-        local anim = animation.base(0, 0.007)
+        local anim = animation.base(nil, 0, 0.007)
         anim.pos = from
         anim:subscribe(function(pos)
             brightness_bar.widget:get_children_by_id("progressbar")[1].forced_width = pos

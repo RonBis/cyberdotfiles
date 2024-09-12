@@ -1,9 +1,9 @@
-local logger = {}
+Logger = {}
 
 local gfs = require("gears.filesystem")
 
 ---@param s string | table
-function logger.write(s)
+function Logger.write(s)
     local file = io.open(gfs.get_configuration_dir() .. "awesome-debug.log", "a+")
     if file == nil then
         return
@@ -19,5 +19,3 @@ function logger.write(s)
     end
     file:close()
 end
-
-return logger

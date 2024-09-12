@@ -23,6 +23,14 @@ local command = {
 
     get_brightness = function() return "brightnessctl get" end,
     increase_brightness = function(factor) return "brightnessctl set " .. (factor and tostring(factor) or "+12.75") end,
-    decrease_brightness = function(factor) return "brightnessctl set " .. (factor and tostring(factor) or "12.75-") end
+    decrease_brightness = function(factor) return "brightnessctl set " .. (factor and tostring(factor) or "12.75-") end,
+
+    -- Where did I get these commands? I'm glad you asked.
+    -- Open terminal and enter "man playerctl"
+    media_play = function() return "playerctl play" end,
+    media_pause = function() return "playerctl pause" end,
+    media_toggle_play = function() return "playerctl play-pause" end,
+    media_play_next = function() return "playerctl next" end,
+    media_play_previous = function() return "playerctl previous" end,
 }
 return command

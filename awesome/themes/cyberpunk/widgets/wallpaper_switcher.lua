@@ -3,7 +3,7 @@ local gears = require("gears")
 local naughty = require("naughty")
 local wibox = require("wibox")
 
-local dconf = require("util.helper.dconf")
+local dconf = require("util.dconf")
 
 wallpaper_grid = wibox.widget {
     layout          = wibox.layout.grid,

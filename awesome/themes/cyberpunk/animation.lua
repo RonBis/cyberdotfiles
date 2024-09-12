@@ -7,11 +7,11 @@ animation.type = {
     SLIDE_OUT = 1,
 }
 
-function animation.base(intro, duration, outro)
+function animation.base(easing, intro, duration, outro)
     return rubato.timed {
         -- pos = nil, note: should be provided by you
         rate = 144, -- your FPS choice
-        easing = rubato.quadratic,
+        easing = easing or rubato.linear,
         intro = intro or 0.2,
         duration = duration or 0.4,
         awestore_compat = true,

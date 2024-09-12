@@ -6,9 +6,10 @@
         "awesome",
         "client",
         "screen",
-        "root"
+        "tag"
     ],
     "vscode-color-picker.languages": [
         "lua",
-    ]
+    ],
+    "svg.preview.background": "editor"
 }
